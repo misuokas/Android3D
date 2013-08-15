@@ -1,0 +1,24 @@
+uniform mat4 modelViewProjectionMatrix;
+uniform mat3 normalMatrix;
+
+attribute vec4 vertex;
+attribute vec3 texture;
+attribute vec3 normal;
+
+varying vec4 color;
+
+const vec3 lightPosition = vec3( 0.0, 0.0, -0.5 );
+
+void main( )
+    {
+    vec3 eyeNormal = normalize( normalMatrix * normal );
+    float ndot = max( 0.0, dot( eyeNormal, normalize( lightPosition ) ) );
+    float rr = 0.2 + ndot;
+    float gg = 0.2 + ndot;
+    float bb = 0;
+    if( rr > 1.0 ) rr = 1.0;
+    if( gg > 1.0 ) gg = 1.0;    
+    color = vec4( rr, gg, bb, 1.0 );
+
+    gl_Position = modelViewProjectionMatrix * vertex;
+    }
