@@ -6,23 +6,29 @@ import android.opengl.Matrix;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 import java.nio.FloatBuffer;
-import java.nio.IntBuffer;
 import java.nio.ShortBuffer;
 
 public class Object
     {
 
+    private final int SIZE_VERTEX = 3;
+    private final int SIZE_VERTEX_NORMAL = 3;
+    private final int SIZE_TEXTURE_VERTEX = 3;
+
+    private final int STRIDE_VERTEX = SIZE_VERTEX * 4 + SIZE_VERTEX_NORMAL * 4
+        + SIZE_TEXTURE_VERTEX * 4;
+
+    private final int OFFSET_VERTEX = 0;
+    private final int OFFSET_VERTEX_NORMAL = SIZE_VERTEX * 4;
+    private final int OFFSET_TEXTURE_VERTEX = SIZE_VERTEX * 4 + SIZE_VERTEX_NORMAL * 4;
+
     private String mName;
 
     private float[ ] mVertices;
-    private float[ ] mTextureVertices;
-    private float[ ] mVertexNormals;
-    private int[ ] mFaces;
+    private short[ ] mFaces;
 
     private FloatBuffer mVerticesBuffer;
-    private FloatBuffer mTextureVerticesBuffer;
-    private FloatBuffer mVertexNormalsBuffer;
-    private IntBuffer mFacesBuffer;
+    private ShortBuffer mFacesBuffer;
 
     private VBO mVBO;
 
@@ -30,25 +36,14 @@ public class Object
     private float[ ] mRotationYMatrix;
     private float[ ] mRotationZMatrix;
 
-    Object( String name, float[ ] vertices, float[ ] textureVertices, float[ ] vertexNormals,
-        int[ ] faces )
+    Object( String name, float[ ] vertices, short[ ] faces )
         {
+        mName = name;
         mVertices = vertices;
-        mTextureVertices = textureVertices;
-        mVertexNormals = vertexNormals;
         mFaces = faces;
 
-        mName = name;
         mVerticesBuffer = createFloatBuffer( mVertices );
-        if( null != mTextureVertices )
-            {
-            mTextureVerticesBuffer = createFloatBuffer( mTextureVertices );
-            }
-        if( null != mVertexNormals )
-            {
-            mVertexNormalsBuffer = createFloatBuffer( mVertexNormals );
-            }
-        mFacesBuffer = createIntegerBuffer( mFaces );
+        mFacesBuffer = createShortBuffer( mFaces );
 
         mVBO = null;
 
@@ -63,46 +58,35 @@ public class Object
 
     void initializeVBO( )
         {
-        mVBO = new VBO( this );
+        mVBO = new VBO( mVerticesBuffer, mFacesBuffer );
         }
 
     void drawVBO( int programHandle )
         {
-        int vertexHandle = GLES20.glGetAttribLocation( programHandle, "vertex" );
         GLES20.glBindBuffer( GLES20.GL_ARRAY_BUFFER, mVBO.getVerticesBufferId( )[ 0 ] );
+        int vertexHandle = GLES20.glGetAttribLocation( programHandle, "vertex" );
         GLES20.glEnableVertexAttribArray( vertexHandle );
-        GLES20.glVertexAttribPointer( vertexHandle, 3, GLES20.GL_FLOAT, false, 3 * 4, 0 );
-
-        int textureHandle = GLES20.glGetAttribLocation( programHandle, "texture" );
-        if( null != mVBO.getTextureVerticesBufferId( ) )
-            {
-            GLES20.glBindBuffer( GLES20.GL_ARRAY_BUFFER, mVBO.getTextureVerticesBufferId( )[ 0 ] );
-            GLES20.glEnableVertexAttribArray( textureHandle );
-            GLES20.glVertexAttribPointer( textureHandle, 3, GLES20.GL_FLOAT, false, 3 * 4, 0 );
-            }
+        GLES20.glVertexAttribPointer( vertexHandle, SIZE_VERTEX, GLES20.GL_FLOAT, false,
+            STRIDE_VERTEX, OFFSET_VERTEX );
 
         int normalHandle = GLES20.glGetAttribLocation( programHandle, "normal" );
-        if( null != mVBO.getVertexNormalsBufferId( ) )
-            {
-            GLES20.glBindBuffer( GLES20.GL_ARRAY_BUFFER, mVBO.getVertexNormalsBufferId( )[ 0 ] );
-            GLES20.glEnableVertexAttribArray( normalHandle );
-            GLES20.glVertexAttribPointer( normalHandle, 3, GLES20.GL_FLOAT, false, 3 * 4, 0 );
-            }
+        GLES20.glEnableVertexAttribArray( normalHandle );
+        GLES20.glVertexAttribPointer( normalHandle, SIZE_VERTEX_NORMAL, GLES20.GL_FLOAT, false,
+            STRIDE_VERTEX, OFFSET_VERTEX_NORMAL );
 
-        GLES20.glBindBuffer( GLES20.GL_ELEMENT_ARRAY_BUFFER, mVBO.getFacesNormalsBufferId( )[ 0 ] );
+        int textureHandle = GLES20.glGetAttribLocation( programHandle, "texture" );
+        GLES20.glEnableVertexAttribArray( textureHandle );
+        GLES20.glVertexAttribPointer( textureHandle, SIZE_TEXTURE_VERTEX, GLES20.GL_FLOAT, false,
+            STRIDE_VERTEX, OFFSET_TEXTURE_VERTEX );
+
+        GLES20.glBindBuffer( GLES20.GL_ELEMENT_ARRAY_BUFFER, mVBO.getFacesBufferId( )[ 0 ] );
 
         GLES20.glDrawElements( GLES20.GL_TRIANGLES, mFacesBuffer.capacity( ),
-            GLES20.GL_UNSIGNED_INT, 0 );
+            GLES20.GL_UNSIGNED_SHORT, 0 );
 
         GLES20.glDisableVertexAttribArray( vertexHandle );
-        if( null != mVBO.getTextureVerticesBufferId( ) )
-            {
-            GLES20.glDisableVertexAttribArray( textureHandle );
-            }
-        if( null != mVBO.getVertexNormalsBufferId( ) )
-            {
-            GLES20.glDisableVertexAttribArray( normalHandle );
-            }
+        GLES20.glDisableVertexAttribArray( normalHandle );
+        GLES20.glDisableVertexAttribArray( textureHandle );
 
         GLES20.glBindBuffer( GLES20.GL_ARRAY_BUFFER, 0 );
         GLES20.glBindBuffer( GLES20.GL_ELEMENT_ARRAY_BUFFER, 0 );
@@ -111,26 +95,6 @@ public class Object
     String getName( )
         {
         return mName;
-        }
-
-    FloatBuffer getVerticesBuffer( )
-        {
-        return mVertexNormalsBuffer;
-        }
-
-    FloatBuffer getTextureVerticesBuffer( )
-        {
-        return mTextureVerticesBuffer;
-        }
-
-    FloatBuffer getVertexNormalsBuffer( )
-        {
-        return mVerticesBuffer;
-        }
-
-    IntBuffer getFacesBuffer( )
-        {
-        return mFacesBuffer;
         }
 
     float[ ] getRotationXMatrix( )
@@ -169,18 +133,6 @@ public class Object
         byteBuffer.order( ByteOrder.nativeOrder( ) );
 
         FloatBuffer buffer = byteBuffer.asFloatBuffer( );
-        buffer.put( array );
-        buffer.position( 0 );
-
-        return buffer;
-        }
-
-    private IntBuffer createIntegerBuffer( int[ ] array )
-        {
-        ByteBuffer byteBuffer = ByteBuffer.allocateDirect( array.length * 4 );
-        byteBuffer.order( ByteOrder.nativeOrder( ) );
-
-        IntBuffer buffer = byteBuffer.asIntBuffer( );
         buffer.put( array );
         buffer.position( 0 );
 

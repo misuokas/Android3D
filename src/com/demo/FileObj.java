@@ -226,54 +226,41 @@ public final class FileObj
         ArrayList< Float > vertices, ArrayList< Float > textureVertices,
         ArrayList< Float > vertexNormals, ArrayList< Integer > faces )
         {
-        float[ ] tmpVertices = null;
-        float[ ] tmpTextureVertices = null;
-        float[ ] tmpVertexNormals = null;
-        int[ ] tmpFaces = null;
         Object object = null;
 
-        int start = indices.get( o ) / 3;
-        int end = indices.get( o + 1 ) / 3;
+        short start = ( short )( indices.get( o ) / 3 );
+        short end = ( short )( indices.get( o + 1 ) / 3 );
 
-        tmpVertices = new float[ ( end - start ) * 3 ];
-        if( 0 != textureVertices.size( ) )
-            {
-            tmpTextureVertices = new float[ ( end - start ) * 3 ];
-            }
-        if( 0 != vertexNormals.size( ) )
-            {
-            tmpVertexNormals = new float[ ( end - start ) * 3 ];
-            }
-        tmpFaces = new int[ end - start ];
+        float[ ] verticesData = new float[ ( end - start ) * 3 * 3 ];
+        short[ ] facesData = new short[ end - start ];
 
-        for( int i = start; i < end; i++ )
+        for( short i = start; i < end; i++ )
             {
             int v = faces.get( i * 3 ) - 1;
-
-            tmpVertices[ ( i - start ) * 3 ] = vertices.get( v * 3 );
-            tmpVertices[ ( i - start ) * 3 + 1 ] = vertices.get( v * 3 + 1 );
-            tmpVertices[ ( i - start ) * 3 + 2 ] = vertices.get( v * 3 + 2 );
-
-            if( 0 != textureVertices.size( ) )
-                {
-                int t = faces.get( i * 3 + 1 ) - 1;
-                tmpTextureVertices[ ( i - start ) * 3 ] = textureVertices.get( t * 3 );
-                tmpTextureVertices[ ( i - start ) * 3 + 1 ] = textureVertices.get( t * 3 + 1 );
-                tmpTextureVertices[ ( i - start ) * 3 + 2 ] = textureVertices.get( t * 3 + 2 );
-                }
+            verticesData[ ( i - start ) * 9 ] = vertices.get( v * 3 );
+            verticesData[ ( i - start ) * 9 + 1 ] = vertices.get( v * 3 + 1 );
+            verticesData[ ( i - start ) * 9 + 2 ] = vertices.get( v * 3 + 2 );
 
             if( 0 != vertexNormals.size( ) )
                 {
                 int n = faces.get( i * 3 + 2 ) - 1;
-                tmpVertexNormals[ ( i - start ) * 3 ] = vertexNormals.get( n * 3 );
-                tmpVertexNormals[ ( i - start ) * 3 + 1 ] = vertexNormals.get( n * 3 + 1 );
-                tmpVertexNormals[ ( i - start ) * 3 + 2 ] = vertexNormals.get( n * 3 + 2 );
+                verticesData[ ( i - start ) * 9 + 3 ] = vertexNormals.get( n * 3 );
+                verticesData[ ( i - start ) * 9 + 4 ] = vertexNormals.get( n * 3 + 1 );
+                verticesData[ ( i - start ) * 9 + 5 ] = vertexNormals.get( n * 3 + 2 );
                 }
 
-            tmpFaces[ ( i - start ) ] = ( i - start );
+            if( 0 != textureVertices.size( ) )
+                {
+                int t = faces.get( i * 3 + 1 ) - 1;
+                verticesData[ ( i - start ) * 9 + 6 ] = textureVertices.get( t * 3 );
+                verticesData[ ( i - start ) * 9 + 7 ] = textureVertices.get( t * 3 + 1 );
+                verticesData[ ( i - start ) * 9 + 8 ] = textureVertices.get( t * 3 + 2 );
+                }
+
+            facesData[ ( short )( i - start ) ] = ( short )( i - start );
             }
 
-        object = new Object( name, tmpVertices, tmpTextureVertices, tmpVertexNormals, tmpFaces );
+        object = new Object( name, verticesData, facesData );
 
         return object;
         }

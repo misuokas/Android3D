@@ -1,7 +1,7 @@
 uniform mat4 modelViewProjectionMatrix;
 uniform mat3 normalMatrix;
 
-attribute vec4 vertex;
+attribute vec3 vertex;
 attribute vec3 texture;
 attribute vec3 normal;
 
@@ -20,5 +20,5 @@ void main( )
     if( gg > 1.0 ) gg = 1.0;    
     color = vec4( rr, gg, bb, 1.0 );
 
-    gl_Position = modelViewProjectionMatrix * vertex;
+    gl_Position = modelViewProjectionMatrix * vec4( vertex, 1.0 );
     }

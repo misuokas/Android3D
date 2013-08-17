@@ -24,8 +24,8 @@ public class Program
         GLES20.glAttachShader( mProgramHandle, fragmentShaderHandle );
 
         GLES20.glBindAttribLocation( mProgramHandle, 0, "vertex" );
-        GLES20.glBindAttribLocation( mProgramHandle, 0, "texture" );
-        GLES20.glBindAttribLocation( mProgramHandle, 0, "normal" );
+        GLES20.glBindAttribLocation( mProgramHandle, 1, "texture" );
+        GLES20.glBindAttribLocation( mProgramHandle, 2, "normal" );
 
         GLES20.glLinkProgram( mProgramHandle );
 
