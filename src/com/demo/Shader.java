@@ -56,8 +56,7 @@ public class Shader
                         }
                     shaderCode = shaderCode + " " + line;
                     }
-                }
-            catch( IOException e )
+                } catch( IOException e )
                 {
                 System.out.println( "Shader::parseVertexShader( ): I/O error." );
                 }

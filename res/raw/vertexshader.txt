@@ -1,24 +1,25 @@
+uniform mat4 viewMatrix;
 uniform mat4 modelViewProjectionMatrix;
 uniform mat3 normalMatrix;
 
 attribute vec3 vertex;
-attribute vec3 texture;
+attribute vec2 texture;
 attribute vec3 normal;
 
-varying vec4 color;
+varying float color;
+varying vec2 texcoord;
 
-const vec3 lightPosition = vec3( 0.0, 0.0, -0.5 );
+const vec3 lightPosition = vec3( 1.0, 1.0, -1.0 );
 
 void main( )
     {
-    vec3 eyeNormal = normalize( normalMatrix * normal );
-    float ndot = max( 0.0, dot( eyeNormal, normalize( lightPosition ) ) );
-    float rr = 0.2 + ndot;
-    float gg = 0.2 + ndot;
-    float bb = 0;
-    if( rr > 1.0 ) rr = 1.0;
-    if( gg > 1.0 ) gg = 1.0;    
-    color = vec4( rr, gg, bb, 1.0 );
+	vec3 position = vec3( viewMatrix * vec4( vertex, 1.0 ) );
+	vec3 eyeNormal = normalize( normalMatrix * normal );
+	vec3 lightDirection = normalize( lightPosition - position );
+	float ndot = max( dot( eyeNormal, lightDirection ), 0.0 );
+
+    color = ndot;
+    texcoord = texture;
 
     gl_Position = modelViewProjectionMatrix * vec4( vertex, 1.0 );
     }

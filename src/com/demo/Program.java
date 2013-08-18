@@ -23,10 +23,6 @@ public class Program
         GLES20.glAttachShader( mProgramHandle, vertexShaderHandle );
         GLES20.glAttachShader( mProgramHandle, fragmentShaderHandle );
 
-        GLES20.glBindAttribLocation( mProgramHandle, 0, "vertex" );
-        GLES20.glBindAttribLocation( mProgramHandle, 1, "texture" );
-        GLES20.glBindAttribLocation( mProgramHandle, 2, "normal" );
-
         GLES20.glLinkProgram( mProgramHandle );
 
         final int[ ] linkStatus = new int[ 1 ];
@@ -52,34 +48,37 @@ public class Program
         Matrix.multiplyMM( mTempMatrix2, 0, mTempMatrix, 0, object.getRotationXMatrix( ), 0 );
         Matrix.multiplyMM( mTempMatrix, 0, mTempMatrix2, 0, object.getRotationYMatrix( ), 0 );
         Matrix.multiplyMM( mModelViewProjectionMatrix, 0, mTempMatrix, 0,
-            object.getRotationZMatrix( ), 0 );
+                object.getRotationZMatrix( ), 0 );
 
         Matrix.invertM( mNormalMatrix, 0, mModelViewProjectionMatrix, 0 );
         Matrix.transposeM( mNormalMatrix, 0, mNormalMatrix, 0 );
 
-        int modelViewProjectionMatrix = GLES20.glGetUniformLocation( mProgramHandle,
-            "modelViewProjectionMatrix" );
-        GLES20.glUniformMatrix4fv( modelViewProjectionMatrix, 1, false, mModelViewProjectionMatrix,
-            0 );
+        int modelViewProjectionMatrixHandle = GLES20.glGetUniformLocation( mProgramHandle,
+                "modelViewProjectionMatrix" );
+        GLES20.glUniformMatrix4fv( modelViewProjectionMatrixHandle, 1, false,
+                mModelViewProjectionMatrix, 0 );
 
-        int normalMatrix = GLES20.glGetUniformLocation( mProgramHandle, "normalMatrix" );
-        GLES20.glUniformMatrix3fv( normalMatrix, 1, false, mNormalMatrix, 0 );
+        int viewMatrixHandle = GLES20.glGetUniformLocation( mProgramHandle, "viewMatrix" );
+        GLES20.glUniformMatrix4fv( viewMatrixHandle, 1, false, mViewMatrix, 0 );
+
+        int normalMatrixHandle = GLES20.glGetUniformLocation( mProgramHandle, "normalMatrix" );
+        GLES20.glUniformMatrix3fv( normalMatrixHandle, 1, false, mNormalMatrix, 0 );
 
         object.drawVBO( mProgramHandle );
         }
 
     void setProjectionMatrix( float left, float right, float bottom, float top, float near,
-        float far )
+            float far )
         {
         Matrix.setIdentityM( mProjectionMatrix, 0 );
         Matrix.frustumM( mProjectionMatrix, 0, left, right, bottom, top, near, far );
         }
 
     void setViewMatrix( float eyeX, float eyeY, float eyeZ, float centerX, float centerY,
-        float centerZ, float upX, float upY, float upZ )
+            float centerZ, float upX, float upY, float upZ )
         {
         Matrix.setIdentityM( mViewMatrix, 0 );
         Matrix.setLookAtM( mViewMatrix, 0, eyeX, eyeY, eyeZ, centerX, centerY, centerZ, upX, upY,
-            upZ );
+                upZ );
         }
     }

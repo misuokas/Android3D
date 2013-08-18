@@ -13,6 +13,7 @@ public final class FileObj
     private static final String TEXTURE_VERTEX = "vt";
     private static final String VERTEX = "v";
     private static final String VERTEX_NORMAL = "vn";
+    private static final String MATERIAL = "usemtl";
 
     static ArrayList< Object > load( BufferedReader reader )
         {
@@ -39,6 +40,7 @@ public final class FileObj
         ArrayList< Float > vertices = new ArrayList< Float >( );
         ArrayList< Float > textureVertices = new ArrayList< Float >( );
         ArrayList< Float > vertexNormals = new ArrayList< Float >( );
+        ArrayList< String > materials = new ArrayList< String >( );
         ArrayList< Integer > faces = new ArrayList< Integer >( );
         ArrayList< Object > objects = null;
 
@@ -70,9 +72,12 @@ public final class FileObj
                         {
                         parseFace( line, FACE, faces );
                         }
+                    if( true == isField( line, MATERIAL ) )
+                        {
+                        parseMaterial( line, MATERIAL, materials );
+                        }
                     }
-                }
-            catch( IOException e )
+                } catch( IOException e )
                 {
                 }
             } while( null != line );
@@ -91,7 +96,7 @@ public final class FileObj
             for( int i = 0; i < names.size( ); i++ )
                 {
                 objects.add( createObject( names.get( i ), i, indices, vertices, textureVertices,
-                    vertexNormals, faces ) );
+                        vertexNormals, faces, materials.get( i ) ) );
                 }
             }
 
@@ -222,9 +227,24 @@ public final class FileObj
         scanner.close( );
         }
 
+    private static void parseMaterial( String line, String field, ArrayList< String > list )
+        {
+        Scanner scanner = new Scanner( line );
+
+        if( true == scanner.hasNext( ) && 0 == scanner.next( ).compareTo( field ) )
+            {
+            if( true == scanner.hasNext( ) )
+                {
+                list.add( scanner.next( ) );
+                }
+            }
+
+        scanner.close( );
+        }
+
     private static Object createObject( String name, int o, ArrayList< Integer > indices,
-        ArrayList< Float > vertices, ArrayList< Float > textureVertices,
-        ArrayList< Float > vertexNormals, ArrayList< Integer > faces )
+            ArrayList< Float > vertices, ArrayList< Float > textureVertices,
+            ArrayList< Float > vertexNormals, ArrayList< Integer > faces, String material )
         {
         Object object = null;
 
@@ -257,10 +277,10 @@ public final class FileObj
                 verticesData[ ( i - start ) * 9 + 8 ] = textureVertices.get( t * 3 + 2 );
                 }
 
-            facesData[ ( short )( i - start ) ] = ( short )( i - start );
+            facesData[ ( i - start ) ] = ( short )( i - start );
             }
 
-        object = new Object( name, verticesData, facesData );
+        object = new Object( name, verticesData, facesData, material );
 
         return object;
         }

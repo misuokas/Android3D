@@ -7,14 +7,16 @@ class Demo
 
     private Scene mScene;
     private int ax = 0;
-    private int ay = 40;
-    private int az = 200;
+    private int ay = 0;
+    private int az = 0;
+    private int cnt = 0;
 
     public Demo( Context context )
         {
         mScene = new Scene( context.getResources( ).openRawResource( R.raw.model ), context
-            .getResources( ).openRawResource( R.raw.vertexshader ), context.getResources( )
-            .openRawResource( R.raw.fragmentshader ) );
+                .getResources( ).openRawResource( R.raw.vertexshader ), context.getResources( )
+                .openRawResource( R.raw.fragmentshader ), context.getResources( ).openRawResource(
+                R.raw.material ), context.getResources( ) );
         }
 
     public void init( )
@@ -29,7 +31,7 @@ class Demo
 
     public void draw( )
         {
-        mScene.setViewMatrix( 0.0f, 0.0f, -2.5f, 0.0f, 0.0f, 0.0f, 0.0f, 1.0f, 0.0f );
+        mScene.setViewMatrix( 0.0f, 0.0f, -5.5f, 0.0f, 0.0f, 0.0f, 0.0f, 1.0f, 0.0f );
         mScene.getObject( 0 ).setRotationXMatrix( ax );
         mScene.getObject( 0 ).setRotationYMatrix( ay );
         mScene.getObject( 0 ).setRotationZMatrix( az );
@@ -50,5 +52,8 @@ class Demo
             {
             az = 0;
             }
+        cnt++;
+        if( cnt > 3600 )
+            System.exit( 0 );
         }
     }
