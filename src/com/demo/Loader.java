@@ -8,15 +8,15 @@ import java.io.InputStreamReader;
 import java.util.ArrayList;
 
 public final class Loader
+  {
+
+  static ArrayList<Object> loadObj(InputStream inputStream)
     {
-
-    static ArrayList< Object > loadObj( InputStream inputStream )
-        {
-        return FileObj.load( new BufferedReader( new InputStreamReader( inputStream ) ) );
-        }
-
-    static ArrayList< Texture > loadMtl( InputStream inputStream, Resources resources )
-        {
-        return FileMtl.load( new BufferedReader( new InputStreamReader( inputStream ) ), resources );
-        }
+    return FileObj.load(new BufferedReader(new InputStreamReader(inputStream)));
     }
+
+  static ArrayList<Texture> loadMtl(InputStream inputStream, Resources resources)
+    {
+    return FileMtl.load(new BufferedReader(new InputStreamReader(inputStream)), resources);
+    }
+  }
