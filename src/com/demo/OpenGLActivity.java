@@ -1,13 +1,11 @@
 package com.demo;
 
 import android.app.Activity;
-import android.opengl.GLSurfaceView;
 import android.os.Bundle;
 
 public class OpenGLActivity extends Activity
   {
-
-  private GLSurfaceView mOpenGLView;
+  private OpenGLSurfaceView mOpenGLView;
 
   @Override
   public void onCreate(Bundle savedInstanceState)

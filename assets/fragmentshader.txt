@@ -1,0 +1,42 @@
+precision mediump float;
+
+uniform vec4 ambientColor;
+uniform vec4 diffuseColor;
+uniform vec4 specularColor;
+uniform float shininess;
+
+uniform bool isTextured;
+uniform sampler2D textureMap;
+
+uniform vec3 cameraPosition;
+
+uniform vec3 lightPosition;
+uniform vec4 lightColor;
+
+varying vec3 v_vertexM;
+varying vec3 v_normalVertexM;
+varying vec2 v_textureVertex;
+
+void main()
+  {
+  float distance = length(lightPosition - v_vertexM);
+
+  vec3 N = normalize(v_normalVertexM);
+  vec3 L = normalize(lightPosition - v_vertexM);
+  float cosTheta = clamp(dot(N, L), 0.0, 1.0);
+  vec4 diffuse = cosTheta / (distance * distance) * lightColor * diffuseColor;
+     
+  vec3 E = normalize(cameraPosition - v_vertexM);
+  vec3 R = reflect(-L, N);
+  float cosAlpha = clamp(dot(E, R), 0.0, 1.0);
+  vec4 specular = pow(cosAlpha, shininess) / (distance * distance) * lightColor * specularColor;
+     
+  if(isTextured == false)
+    {
+    gl_FragColor = ambientColor + diffuse + specular;
+    }
+  else
+    {
+    gl_FragColor = (ambientColor + diffuse + specular) * texture2D(textureMap, v_textureVertex);
+    }
+  }

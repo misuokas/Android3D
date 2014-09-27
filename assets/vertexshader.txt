@@ -1,0 +1,26 @@
+precision mediump float;
+
+uniform mat4 modelMatrix;
+uniform mat4 modelViewProjectionMatrix;
+
+uniform bool isTextured;
+
+attribute vec3 vertex;
+attribute vec3 normalVertex;
+attribute vec2 textureVertex;
+
+varying vec2 v_textureVertex;
+
+varying vec3 v_vertexM;
+varying vec3 v_normalVertexM;
+
+void main()
+  {
+  v_vertexM = (modelMatrix * vec4(vertex, 1.0)).xyz;
+  v_normalVertexM = (modelMatrix * vec4(normalVertex, 0.0)).xyz;
+  if(isTextured == true)
+    {
+    v_textureVertex = textureVertex;
+    }
+  gl_Position = modelViewProjectionMatrix * vec4(vertex, 1.0);
+  }
